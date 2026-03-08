@@ -1,0 +1,437 @@
+<WindowManager>:
+    MainMenuScreen:
+        name: "menu"
+    SettingsScreen:
+        name: "settings"
+    GameScreen:
+        name: "game"
+    GameOverScreen:
+        name: "gameover"
+
+<MainMenuScreen>:
+    FloatLayout:
+        # ส่วนพื้นหลังที่ขยายเต็มเฟรม
+        Image:
+            source: 'assets/images/bg_main1.png'
+            size_hint: 1, 1              # ขยายขนาดให้เท่ากับหน้าต่างหลัก
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            allow_stretch: True          # อนุญาตให้ยืดภาพ
+            keep_ratio: False
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 0.35, 0.4
+            pos_hint: {"center_x": 0.5, "center_y": 0.35}
+            spacing: 15
+            
+            Button:
+                text: "START GAME"
+                font_size: '22sp'
+                bold: True
+                background_normal: 'assets/images/button_wood1.png'
+                on_release: app.root.current = "game"
+                
+            Button:
+                text: "SETTINGS"
+                font_size: '22sp'
+                bold: True
+                background_normal: 'assets/images/button_wood1.png'
+                on_release: app.root.current = "settings"
+                
+            Button:
+                text: "EXIT"
+                font_size: '22sp'
+                bold: True
+                background_normal: 'assets/images/button_wood1.png'
+                background_color: 1, 0.3, 0.3, 1
+                on_release: app.stop()
+
+<SettingsScreen>:
+    FloatLayout:
+        # 1. พื้นหลัง (ใช้รูปเดียวกับหน้าเมนูเพื่อให้คุมธีม)
+        Image:
+            source: 'assets/images/bgsetting.png'
+            allow_stretch: True
+            keep_ratio: False
+            color: 0.6, 0.6, 0.6, 1  # ปรับให้มืดลงเล็กน้อยเพื่อให้ UI เด่นขึ้น
+
+        # 2. ป้ายหัวข้อ Settings
+        Label:
+            text: "SETTINGS"
+            font_size: '50sp'
+            bold: True
+            color: 1, 0.8, 0.2, 1
+            outline_color: 0, 0, 0, 1
+            outline_width: 2
+            pos_hint: {"center_x": 0.5, "center_y": 0.85}
+
+        # 3. กล่องตั้งค่ากลางหน้าจอ
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 0.6, 0.5
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            spacing: 30
+            padding: 20
+
+            # ส่วนปรับความดังเสียง
+            BoxLayout:
+                orientation: 'horizontal'
+                spacing: 20
+                Label:
+                    text: "VOLUME"
+                    font_size: '25sp'
+                    bold: True
+                    size_hint_x: 0.3
+                Slider:
+                    min: 0
+                    max: 1
+                    value: 0.5
+                    step: 0.1
+                    orientation: 'horizontal'
+                    on_value: root.on_volume_change(self.value)
+
+            # ส่วนเปิด/ปิดเสียง
+            BoxLayout:
+                orientation: 'horizontal'
+                spacing: 20
+                Label:
+                    text: "MUTE"
+                    font_size: '25sp'
+                    bold: True
+                    size_hint_x: 0.3
+                CheckBox:
+                    size_hint_x: 0.7
+
+        # 4. ปุ่ม Back (ใช้ดีไซน์เดียวกับปุ่มเมนูหลัก)
+        Button:
+            text: "BACK"
+            font_size: '22sp'
+            bold: True
+            size_hint: 0.2, 0.12
+            pos_hint: {"center_x": 0.5, "center_y": 0.15}
+            background_normal: 'assets/images/button_wood1.png'
+            background_color: 1, 1, 1, 1
+            on_release: app.root.current = "menu"
+
+        ToggleButton:
+            id: mute_checkbox
+            text: "MUTE"
+            size_hint: 0.15, 0.08
+            bold: True
+            pos_hint: {"center_x": 0.55, "center_y": 0.35}
+            on_state: self.text = "ON" if self.state == 'down' else "OFF"
+            on_state: root.on_mute_change(self.state == 'down')
+<GameScreen>:
+    FloatLayout:
+        # พื้นหลังขณะเล่น (อาจใช้ภาพเดียวกับหน้าเมนูหรือภาพเรียบๆ)
+        Image:
+            source: 'assets/images/Background.png'
+            allow_stretch: True
+            keep_ratio: False
+
+        # UI คะแนน
+        Label:
+            id: current_score_label
+            text: "Score: 0"   
+            font_name: 'assets/fonts/Bangers.ttf' 
+            font_size: '40sp'  
+            bold: True
+            pos_hint: {"x": 0.05, "top": 0.98}
+            size_hint: None, None
+
+        # --- กล่องหลัก (ครอบทั้งหมด) ---
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: None, None
+            height: root.height * 0.09   
+            size: self.minimum_width, self.height
+            pos_hint: {"right": 0.96, "top": 0.98}
+            spacing: root.height * 0.03  # ระยะห่างระหว่างกลุ่มหัวใจ กับ ปุ่มหยุด
+
+            # --- กลุ่มที่ 1: กล่องใส่หัวใจ 3 ดวง ---
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint: None, None
+                size: self.minimum_width, self.parent.height
+                pos_hint: {'center_y': 0.5}
+                spacing: root.height * 0.01
+
+                Image:
+                    id: life_1
+                    source: 'assets/images/heart_full.png'
+                    size_hint: None, None
+                    size: root.height * 0.085, root.height * 0.085
+                    pos_hint: {'center_y': 0.5}
+                    allow_stretch: True
+                    keep_ratio: True
+
+                Image:
+                    id: life_2
+                    source: 'assets/images/heart_full.png'
+                    size_hint: None, None
+                    size: root.height * 0.085, root.height * 0.085
+                    pos_hint: {'center_y': 0.5}
+                    allow_stretch: True
+                    keep_ratio: True
+
+                Image:
+                    id: life_3
+                    source: 'assets/images/heart_full.png'
+                    size_hint: None, None
+                    size: root.height * 0.085, root.height * 0.085
+                    pos_hint: {'center_y': 0.5}
+                    allow_stretch: True
+                    keep_ratio: True
+
+            # --- กลุ่มที่ 2: ปุ่มหยุด (โค้ดเดิมของคุณเป๊ะๆ) ---
+            Button:
+                text: "II"
+                size_hint: None, None
+                size: root.height * 0.07, root.height * 0.07
+                pos_hint: {'center_y': 0.5}
+
+                background_normal: ''
+                background_down: ''
+                background_color: 0, 0, 0, 0
+                color: 1, 1, 1, 1
+                bold: True
+                font_size: self.height * 0.45
+
+                canvas.before:
+                    Color:
+                        rgba: 1, 1, 1, 0.15
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [10]
+
+                    Color:
+                        rgba: 1, 1, 1, 0.7
+                    Line:
+                        rounded_rectangle: (self.x, self.y, self.width, self.height, 10)
+                        width: 1.2
+
+                on_release: root.pause_game()
+
+        Label:
+            id: combo_shadow
+            text: ""
+            font_size: '60sp'
+            bold: True
+            halign: 'center'
+            color: 0, 0, 0.5, 1
+            pos: (-1000, -1000)
+            outline_color: 0, 0, 0, 1
+            outline_width: 5
+
+        Label:
+            id: combo_main
+            text: ""
+            font_size: '60sp'
+            bold: True
+            halign: 'center'
+            color: 0, 0.6, 1, 1
+            pos: (-1000, -1000)
+
+        Label:
+            id: combo_highlight
+            text: ""
+            font_size: '60sp'
+            bold: True
+            halign: 'center'
+            color: 0.8, 0.95, 1, 1
+            pos: (-1000, -1000)
+
+        # Layer สำหรับข้อความ Combo (จัดวางตามโค้ด Python)
+        Label:
+            id: combo_shadow
+            font_size: '60sp'
+            bold: True
+        Label:
+            id: combo_main
+            font_size: '60sp'
+            bold: True
+        Label:
+            id: combo_highlight
+            font_size: '60sp'
+            bold: True
+
+    # หน้าต่างเมนู Pause (Modern Version)
+        BoxLayout:
+            id: pause_overlay
+            orientation: 'vertical'
+
+            size_hint: None, None
+            width: root.width * 0.4
+            height: root.height * 0.5
+
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            spacing: root.height * 0.02
+            padding: root.width * 0.04
+
+            opacity: 0
+            disabled: True
+
+            canvas.before:
+                # เงาด้านล่าง (depth)
+                Color:
+                    rgba: 0, 0, 0, 0.4
+                RoundedRectangle:
+                    pos: self.x, self.y - 8
+                    size: self.size
+                    radius: [25]
+
+                # พื้นหลังแดงเข้ม
+                Color:
+                    rgba: 0.5, 0, 0, 0.95
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [25]
+
+                # ขอบทอง
+                Color:
+                    rgba: 1, 0.8, 0.2, 1
+                Line:
+                    rounded_rectangle: (self.x, self.y, self.width, self.height, 25)
+                    width: 2
+
+            Label:
+                text: "PAUSED"
+                font_size: '36sp'
+                bold: True
+                color: 1, 0.9, 0.4, 1   # ทอง
+                size_hint_y: 0.35
+
+            Button:
+                text: "RESUME"
+                font_size: '24sp'
+                bold: True
+                size_hint_y: 0.3
+                background_normal: ''
+                background_down: ''
+                background_color: 0,0,0,0
+                color: 1,1,1,1
+
+                canvas.before:
+                    # เงาปุ่ม
+                    Color:
+                        rgba: 0,0,0,0.3
+                    RoundedRectangle:
+                        pos: self.x, self.y - 4
+                        size: self.size
+                        radius: [20]
+
+                    # ปุ่มเขียวไล่โทนสด
+                    Color:
+                        rgba: 0.1, 0.9, 0.3, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [20]
+
+                on_release: root.resume_game()
+
+            Button:
+                text: "QUIT GAME"
+                font_size: '24sp'
+                bold: True
+                size_hint_y: 0.3
+                background_normal: ''
+                background_down: ''
+                background_color: 0,0,0,0
+                color: 1,1,1,1
+
+                canvas.before:
+                    # เงาปุ่ม
+                    Color:
+                        rgba: 0,0,0,0.3
+                    RoundedRectangle:
+                        pos: self.x, self.y - 4
+                        size: self.size
+                        radius: [20]
+
+                    # ปุ่มแดงสด
+                    Color:
+                        rgba: 1, 0.2, 0.2, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [20]
+
+                on_release: root.quit_game()
+
+<GameOverScreen>:
+    FloatLayout:
+        # 1. พื้นหลังมืดลงเพื่อความดราม่า (Overlay)
+        Image:
+            source: 'assets/images/gameover.jpg'
+            allow_stretch: True
+            keep_ratio: False
+            color: 0.3, 0.3, 0.3, 1  
+
+        # 2. ป้ายหัวข้อ GAME OVER
+        Label:
+            text: "GAME OVER"
+            font_size: '70sp'
+            bold: True
+            color: 1, 0.2, 0.2, 1 
+            outline_color: 0, 0, 0, 1
+            outline_width: 3
+            pos_hint: {"center_x": 0.5, "center_y": 0.85}
+
+        # 3. ส่วนแสดงคะแนน (ปรับให้กล่องกว้างและสูงขึ้น ไม่ทับกัน)
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 0.8, 0.45
+            pos_hint: {"center_x": 0.5, "center_y": 0.55}
+            spacing: 5
+            
+            Label:
+                id: score_label
+                text: "Your Score: 0"
+                font_size: '40sp'
+                bold: True
+                color: 1, 1, 1, 1
+                size_hint_y: 0.3  
+
+            Label:
+                id: highscore_label
+                text: "High Score: --"
+                font_size: '20sp'  
+                color: 1, 0.8, 0.2, 1
+                text_size: self.size
+                halign: 'center'
+                valign: 'middle'
+                size_hint_y: 0.7
+
+        # 4. ส่วนกรอกชื่อ (ขยับลงมาให้พ้นรายชื่อคะแนน)
+        TextInput:
+            id: player_name
+            hint_text: "ENTER YOUR NAME..."
+            multiline: False
+            size_hint: 0.4, 0.08
+            font_size: '20sp'
+            pos_hint: {"center_x": 0.5, "center_y": 0.28}
+
+        # 5. ปุ่มควบคุม (เหลือแค่ SAVE & RESTART)
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: 0.4, 0.12
+            pos_hint: {"center_x": 0.5, "center_y": 0.15}
+
+            Button:
+                text: "SAVE & RESTART"
+                font_size: '18sp'
+                bold: True
+                background_normal: 'assets/images/button_wood1.png'
+                on_release: 
+                    root.save_score()
+                    root.restart_game()
+            
+            Button:
+                text: "MAIN MENU"
+                font_size: '18sp'
+                bold: True
+                background_normal: 'assets/images/button_wood1.png'
+                on_release: app.root.current = "menu"
